@@ -3,16 +3,19 @@ class NodeSelector
 
   attr_accessor :urls,:input_count
 
-  def initialize page,node,domain
+  def initialize page,node,domain,page_limit
     @page = page
     @node = node
     @domain = domain
+    @page_limit = page_limit
   end
 
   def select_nodes
-    @urls = @page.search("a")
+    @urls = @page.search("a")[0..(@page_limit)]
     @input_count = @page.search(@node).count
     filter_urls_by_href
+  rescue NoMethodError => e
+    puts e.message
   end
 
   def filter_urls_by_href
@@ -25,7 +28,10 @@ class NodeSelector
   end
 
   def crawlable(link)
+    link = URI.encode(link) if !link.nil?
     case
+    when link.nil?
+      nil
     when excludable_links.include?(link)
       nil
     when sub_folder?(link)
