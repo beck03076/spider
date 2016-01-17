@@ -72,7 +72,7 @@ class Main
   end
 
   def crawl_child_links(i,links)
-    crawler_pool = CrawlWorker.pool(size: 16)
+    crawler_pool = CrawlWorker.pool(size: 10)
     links.map {|url|
       if !@url_store.include?(url)
         crawler_pool.future(:perform,url,i,@options)

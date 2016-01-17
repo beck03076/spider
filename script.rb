@@ -22,14 +22,17 @@ optparse = OptionParser.new do |opts|
 end
 
 optparse.parse!
-
-if ([:node,:page_limit,:depth,:url] - options.keys).length == 0
-  main = Main.new(options[:url],options.slice(:page_limit,:node,:depth))
-  main.execute
-  main.output
+if !(%w(http https).include?(URI.parse(options[:url]).scheme))
+  puts "======= Please enter a valid url with scheme, Example: http://example.com"
 else
-  puts "=============== Command Line Args ============"
-  puts "Please run this script as follows,"
-  puts "mycomputer> ruby script.rb -n input -p 50 -d 2 -u http://example.com"
-  puts "================================= ============"
+  if ([:node,:page_limit,:depth,:url] - options.keys).length == 0
+    main = Main.new(options[:url],options.slice(:page_limit,:node,:depth))
+    main.execute
+    main.output
+  else
+    puts "=============== Command Line Args ============"
+    puts "Please run this script as follows,"
+    puts "mycomputer> ruby script.rb -n input -p 50 -d 2 -u http://example.com"
+    puts "================================= ============"
+  end
 end
