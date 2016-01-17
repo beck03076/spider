@@ -71,7 +71,6 @@ class Main
     })
   end
 
-
   def crawl_child_links(i,links)
     crawler_pool = CrawlWorker.pool(size: 16)
     links.map {|url|
