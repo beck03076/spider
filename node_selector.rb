@@ -1,43 +1,42 @@
 class NodeSelector
   include Utility
+  attr_accessor :page,:options
 
-  attr_accessor :urls,:input_count
-
-  def initialize page,node,domain,page_limit
+  def initialize page,options = {}
     @page = page
-    @node = node
-    @domain = domain
-    @page_limit = page_limit
+    @options = options
   end
 
-  def select_nodes
-    @urls = @page.search("a")[0..(@page_limit)]
-    @input_count = @page.search(@node).count
-    filter_urls_by_href
-  rescue NoMethodError => e
-    puts e.message
+  def detect_urls
+    dirty_urls = rescued_search { @page.search("a")[0..(@options[:page_limit].to_i)] }
+    clean_urls(dirty_urls) if !dirty_urls.nil?
   end
 
-  def filter_urls_by_href
+  def count_nodes
+    rescued_search { @page.search(@options[:node]).count }
+  end
+
+  private
+
+  def clean_urls(urls)
     arr = []
-    @urls.map {|i|
+    urls.map {|i|
       link_href = i.attr("href")
-      arr << crawlable(link_href)
+      a =  crawlable(link_href)
+      arr << a
     }
-    @urls = arr.flatten.compact
+    arr.flatten.compact.to_a.uniq
   end
 
   def crawlable(link)
-    link = URI.encode(link) if !link.nil?
+    encoded_link = URI.encode(link.strip) if !link.nil?
     case
-    when link.nil?
+    when link.nil?, encoded_link.nil?, excludable_patterns.any? { |s| link.include?(s) }, excludable_links.include?(link)
       nil
-    when excludable_links.include?(link)
-      nil
-    when sub_folder?(link)
-      ["http://",@domain,link].join
-    when @domain == host_name(link)
-      link
+    when sub_folder?(encoded_link)
+      ["http://",@options[:domain],encoded_link].join
+    when @options[:domain] == host_name(encoded_link)
+      add_http(encoded_link)
     else
       nil
     end
