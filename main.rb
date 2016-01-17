@@ -21,16 +21,20 @@ class Main
   end
 
   def execute
-    # upto given depth
-    1.upto(@options[:depth].to_i) do |i|
-      @level_info[i - 1].compact.each do |j|
-        # for a given page, crawl all links in the page concurrently
-        if !j[:links].nil?
-          futures = crawl_child_links(i,j[:links])
-          @level_info[i] = futures.map &:value
-          populate_url_store_crawled_links(@level_info[i])
+    Benchmark.bm do |x|
+      r = x.report{
+        # upto given depth
+        1.upto(@options[:depth].to_i) do |i|
+          @level_info[i - 1].compact.each do |j|
+            # for a given page, crawl all links in the page concurrently
+            if !j[:links].nil?
+              futures = crawl_child_links(i,j[:links])
+              @level_info[i] = futures.map &:value
+              populate_url_store_crawled_links(@level_info[i])
+            end
+          end
         end
-      end
+      }
     end
   end
 
