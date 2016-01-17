@@ -8,6 +8,10 @@ Depth -d, Url -u, Node -n, Page Limit -p
 
 Based on the arguments given to the spider, it will crawl the given url to scrape all the links and count the number of html nodes(input, form, a, h1, etc) present in the html page, recursively upto x levels as given in the depth parameter.
 
+# Highlight
+
+This spider uses Celluloid for crawling web pages concurrently. Line #74 of main.rb + crawl_worker.rb has more details.
+
 # Steps to execute
 
 - git clone git@github.com:beck03076/spider.git
